@@ -227,6 +227,25 @@ pub fn build(b: *std.Build) !void {
             }
         }
     }
+    // Sort for reproducibility — dir iteration order is not guaranteed
+    const LazyPathSort = struct {
+        fn lessThan(_: void, a: std.Build.LazyPath, b2: std.Build.LazyPath) bool {
+            return std.mem.lessThan(u8, a.src_path.sub_path, b2.src_path.sub_path);
+        }
+    };
+    const SourceItemSort = struct  {
+        fn lessThan(_: void, a: gen.SourceItem, b2: gen.SourceItem) bool {
+            return std.mem.lessThan(u8, a.name, b2.name);
+        }
+    };
+    const SliceSort = struct {
+        fn lessThan(_: void, a: []const u8, b2: []const u8) bool {
+            return std.mem.lessThan(u8, a, b2);
+        }
+    };
+    std.mem.sort(std.Build.LazyPath, api_headers.items, {}, LazyPathSort.lessThan);
+    std.mem.sort(gen.SourceItem, nvim_sources.items, {}, SourceItemSort.lessThan);
+    std.mem.sort([]u8, nvim_headers.items, {}, SliceSort.lessThan);
 
     const support_unittests = use_luajit;
 
