@@ -422,13 +422,11 @@ local function gen_map(output_file, option_index)
   -- Generate option index map.
   local hashy = require('gen.hashy')
 
-  local neworder, hashfun = hashy.hashy_hash(
-    'find_option',
-    vim.tbl_keys(option_index),
-    function(idx)
-      return ('option_hash_elems[%s].name'):format(idx)
-    end
-  )
+  local keys = vim.tbl_keys(option_index)
+  table.sort(keys)
+  local neworder, hashfun = hashy.hashy_hash('find_option', keys, function(idx)
+    return ('option_hash_elems[%s].name'):format(idx)
+  end)
 
   local fd = assert(io.open(output_file, 'w'))
 
